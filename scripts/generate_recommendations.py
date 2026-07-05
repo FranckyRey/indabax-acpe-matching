@@ -38,7 +38,7 @@ def main():
     print("\n[1/5] Chargement des données...")
     t0 = time.time()
     offres_raw, demandeurs_raw, appariements = load_data(DATA_DIR)
-    print(f"  ✓ {len(offres_raw)} offres | {len(demandeurs_raw)} candidats "
+    print(f"  [OK] {len(offres_raw)} offres | {len(demandeurs_raw)} candidats "
           f"| {len(appariements)} appariements  ({time.time()-t0:.1f}s)")
 
     # ------------------------------------------------------------------
@@ -49,14 +49,14 @@ def main():
     offres     = clean_offres(offres_raw)
     demandeurs = clean_demandeurs(demandeurs_raw)
     gt         = prepare_ground_truth(appariements)
-    print(f"  ✓ Données nettoyées  ({time.time()-t0:.1f}s)")
+    print(f"  [OK] Données nettoyées  ({time.time()-t0:.1f}s)")
 
     # Sauvegarder les données nettoyées
     processed_dir = Path(__file__).parent.parent / "data" / "processed"
     processed_dir.mkdir(exist_ok=True)
     offres.to_csv(processed_dir / "offres_clean.csv", index=False)
     demandeurs.to_csv(processed_dir / "demandeurs_clean.csv", index=False)
-    print(f"  ✓ Données nettoyées sauvegardées dans data/processed/")
+    print(f"  [OK] Données nettoyées sauvegardées dans data/processed/")
 
     # ------------------------------------------------------------------
     # 3. Entraînement du moteur
@@ -66,8 +66,8 @@ def main():
     engine = MatchingEngine(alpha=0.70, beta=0.20, gamma=0.10)
     engine.fit(offres)
     engine.save(MODEL_PATH)
-    print(f"  ✓ Moteur TF-IDF entraîné sur {len(offres)} offres  ({time.time()-t0:.1f}s)")
-    print(f"  ✓ Modèle sauvegardé : {MODEL_PATH}")
+    print(f"  [OK] Moteur TF-IDF entraîné sur {len(offres)} offres  ({time.time()-t0:.1f}s)")
+    print(f"  [OK] Modèle sauvegardé : {MODEL_PATH}")
 
     # ------------------------------------------------------------------
     # 4. Génération des recommandations (Top-10, contient Top-5)
@@ -76,8 +76,8 @@ def main():
     t0 = time.time()
     recs_df = engine.recommend_all(demandeurs, k=10, id_col="Matricule")
     recs_df.to_csv(OUTPUT_DIR / "recommendations.csv", index=False)
-    print(f"  ✓ {len(recs_df)} lignes générées  ({time.time()-t0:.1f}s)")
-    print(f"  ✓ Sauvegardé : outputs/recommendations.csv")
+    print(f"  [OK] {len(recs_df)} lignes générées  ({time.time()-t0:.1f}s)")
+    print(f"  [OK] Sauvegardé : outputs/recommendations.csv")
 
     # ------------------------------------------------------------------
     # 5. Évaluation
@@ -92,9 +92,9 @@ def main():
         for name, value in metrics.items():
             report_rows.append({"metrique": name, "valeur": value, "pourcentage": f"{value*100:.2f}%"})
     pd.DataFrame(report_rows).to_csv(OUTPUT_DIR / "evaluation_report.csv", index=False)
-    print(f"  ✓ Rapport sauvegardé : outputs/evaluation_report.csv")
+    print(f"  [OK] Rapport sauvegardé : outputs/evaluation_report.csv")
 
-    print("\n✅ Terminé avec succès !")
+    print("\n[OK] Terminé avec succès !")
 
 
 if __name__ == "__main__":

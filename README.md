@@ -122,11 +122,11 @@ python -m pytest tests/ -v
 
 | Métrique | Valeur |
 |---|---|
-| Precision@5 | *voir outputs/evaluation_report.csv* |
-| Recall@5 | *voir outputs/evaluation_report.csv* |
-| NDCG@5 | *voir outputs/evaluation_report.csv* |
-| Precision@10 | *voir outputs/evaluation_report.csv* |
-| NDCG@10 | *voir outputs/evaluation_report.csv* |
+| Precision@5 | **27.65%** |
+| Recall@5 | **46.08%** |
+| NDCG@5 | **43.61%** |
+| Precision@10 | **17.28%** |
+| NDCG@10 | **48.84%** |
 
 ---
 
