@@ -1,0 +1,7 @@
+metrique,valeur,pourcentage
+Precision@5,0.2765,27.65%
+Recall@5,0.4608,46.08%
+NDCG@5,0.4361,43.61%
+Precision@10,0.1728,17.28%
+Recall@10,0.5758,57.58%
+NDCG@10,0.4884,48.84%

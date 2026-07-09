@@ -19,12 +19,12 @@ env/
 .ipynb_checkpoints/
 *.ipynb_checkpoints
 
-# Données brutes (trop lourdes pour Git)
-data/raw/
-data/embeddings/
+# Données brutes (Commenté pour le déploiement Cloud)
+# data/raw/
+# data/embeddings/
 
 # Outputs générés
-outputs/*.csv
+# outputs/*.csv
 
 # IDE
 .vscode/
@@ -40,7 +40,7 @@ Thumbs.db
 .streamlit/secrets.toml
 
 # Modèles ML locaux
-models/
-*.pkl
-*.joblib
-*.h5
+# models/
+# *.pkl
+# *.joblib
+# *.h5
