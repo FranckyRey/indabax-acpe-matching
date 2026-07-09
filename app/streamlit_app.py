@@ -178,115 +178,8 @@ except Exception as e:
 
 
 # ===========================================================================
-# PAGE 1 — ACCUEIL
+# Fonctions d'affichage (Helper functions)
 # ===========================================================================
-if page == "🏠 Accueil":
-    st.markdown("# 🎯 Système d'Appariement Emploi — ACPE")
-    st.markdown(
-        "Bienvenue sur le prototype de mise en relation intelligente entre **demandeurs d'emploi** "
-        "et **offres d'emploi** de l'Agence Congolaise pour l'Emploi."
-    )
-
-    if data_loaded:
-        col1, col2, col3, col4 = st.columns(4)
-        with col1:
-            st.metric("👤 Candidats", f"{len(demandeurs):,}")
-        with col2:
-            st.metric("💼 Offres d'emploi", f"{len(offres):,}")
-        with col3:
-            n_sectors = offres["secteur"].nunique()
-            st.metric("🏭 Secteurs", n_sectors)
-        with col4:
-            n_cities = offres["localisation_norm"].nunique()
-            st.metric("📍 Villes", n_cities)
-
-    st.markdown("---")
-    st.markdown("### 🚀 Fonctionnalités disponibles")
-    cols = st.columns(2)
-    features = [
-        ("🔍 Recommandations", "Top-5 et Top-10 offres pour chaque candidat avec score de compatibilité"),
-        ("📊 Tableau de Bord", "KPIs, statistiques et visualisations interactives pour les conseillers"),
-        ("🔎 Recherche Intelligente", "Retrouvez offres et candidats par requête en langage naturel"),
-        ("📈 Analyse Skill Gap", "Identifiez les compétences manquantes pour chaque recommandation"),
-    ]
-    for i, (title, desc) in enumerate(features):
-        with cols[i % 2]:
-            st.info(f"**{title}**\n\n{desc}")
-
-    st.markdown("---")
-    st.markdown("### 🧠 Architecture du moteur")
-    st.markdown("""
-    Le moteur d'appariement utilise un **score hybride** :
-
-    ```
-    Score = 70% × Similarité TF-IDF (profil candidat ↔ offre)
-           + 20% × Correspondance sectorielle
-           + 10% × Correspondance géographique
-    ```
-
-    **Méthode TF-IDF** : les profils textuels des candidats (métier visé, qualifications, filière...)
-    et des offres (titre, secteur, description) sont vectorisés et comparés par similarité cosinus.
-    """)
-
-
-# ===========================================================================
-# PAGE 2 — RECOMMANDATIONS
-# ===========================================================================
-elif page == "🔍 Recommandations":
-    st.markdown("# 🔍 Recommandations Personnalisées")
-
-    if not data_loaded:
-        st.stop()
-
-    tab1, tab2 = st.tabs(["Par ID Candidat", "Profil Libre"])
-
-    # --- Onglet 1 : par ID candidat ---
-    with tab1:
-        col_search, col_k = st.columns([3, 1])
-        with col_search:
-            candidate_id = st.selectbox(
-                "Sélectionner un candidat",
-                options=demandeurs["Matricule"].astype(str).tolist(),
-                index=0,
-            )
-        with col_k:
-            k = st.selectbox("Top-K", options=[5, 10], index=0)
-
-        if candidate_id:
-            candidate_row = demandeurs[demandeurs["Matricule"].astype(str) == candidate_id].iloc[0]
-            _show_candidate_and_recs(candidate_row, engine, offres, ground_truth, k, candidate_id)
-
-    # --- Onglet 2 : profil libre ---
-    with tab2:
-        st.markdown("#### Saisir un profil manuellement")
-        col1, col2 = st.columns(2)
-        with col1:
-            metier_vise  = st.text_input("Métier visé", placeholder="Ex: Data Analyst")
-            secteur      = st.text_input("Secteur demandé", placeholder="Ex: Technologie")
-            specialite   = st.text_input("Filière / Spécialité", placeholder="Ex: Informatique")
-        with col2:
-            diplome      = st.text_input("Diplôme", placeholder="Ex: Licence en Informatique")
-            niveau       = st.selectbox("Niveau d'étude", ["Bac", "Bac+2", "Bac+3", "Bac+5", "Doctorat"])
-            mobilite     = st.text_input("Mobilité géographique", placeholder="Ex: Brazzaville")
-        k_libre = st.selectbox("Top-K ", options=[5, 10], index=0)
-
-        if st.button("🔍 Trouver les meilleures offres", type="primary"):
-            from src.preprocessing import build_candidate_text, normalize_location, clean_text
-            row = pd.Series({
-                "Métier visé / Qualification visée": metier_vise,
-                "Secteur demandé": secteur,
-                "Filière / Spécialité": specialite,
-                "Diplome": diplome,
-                "niveau_etude": niveau,
-                "Qualification": "",
-                "Objectif": "Emploi",
-                "mobilite_norm": normalize_location(mobilite),
-                "Mobilité géographique": mobilite,
-            })
-            row["text_profile"] = build_candidate_text(row)
-            _show_recs_only(row, engine, offres, k_libre)
-
-
 def _show_candidate_and_recs(candidate_row, engine, offres, ground_truth, k, candidate_id):
     """Affiche le profil candidat et ses recommandations."""
     st.markdown("---")
@@ -381,9 +274,121 @@ def _render_recommendations(recs, relevant_ids):
 
 
 # ===========================================================================
+# PAGE 1 — ACCUEIL
+# ===========================================================================
+if page == "🏠 Accueil":
+    st.markdown("# 🎯 Système d'Appariement Emploi — ACPE")
+    st.markdown(
+        "Bienvenue sur le prototype de mise en relation intelligente entre **demandeurs d'emploi** "
+        "et **offres d'emploi** de l'Agence Congolaise pour l'Emploi."
+    )
+
+    if data_loaded:
+        col1, col2, col3, col4 = st.columns(4)
+        with col1:
+            st.metric("👤 Candidats", f"{len(demandeurs):,}")
+        with col2:
+            st.metric("💼 Offres d'emploi", f"{len(offres):,}")
+        with col3:
+            n_sectors = offres["secteur"].nunique()
+            st.metric("🏭 Secteurs", n_sectors)
+        with col4:
+            n_cities = offres["localisation_norm"].nunique()
+            st.metric("📍 Villes", n_cities)
+
+    st.markdown("---")
+    st.markdown("### 🚀 Fonctionnalités disponibles")
+    cols = st.columns(2)
+    features = [
+        ("🔍 Recommandations", "Top-5 et Top-10 offres pour chaque candidat avec score de compatibilité"),
+        ("📊 Tableau de Bord", "KPIs, statistiques et visualisations interactives pour les conseillers"),
+        ("🔎 Recherche Intelligente", "Retrouvez offres et candidats par requête en langage naturel"),
+        ("📈 Analyse Skill Gap", "Identifiez les compétences manquantes pour chaque recommandation"),
+    ]
+    for i, (title, desc) in enumerate(features):
+        with cols[i % 2]:
+            st.info(f"**{title}**\n\n{desc}")
+
+    st.markdown("---")
+    st.markdown("### 🧠 Architecture du moteur")
+    st.markdown("""
+    Le moteur d'appariement utilise un **score hybride** :
+
+    ```
+    Score = 70% × Similarité TF-IDF (profil candidat ↔ offre)
+           + 20% × Correspondance sectorielle
+           + 10% × Correspondance géographique
+    ```
+
+    **Méthode TF-IDF** : les profils textuels des candidats (métier visé, qualifications, filière...)
+    et des offres (titre, secteur, description) sont vectorisés et comparés par similarité cosinus.
+    """)
+
+
+# ===========================================================================
+# PAGE 2 — RECOMMANDATIONS
+# ===========================================================================
+if page == "🔍 Recommandations":
+    st.markdown("# 🔍 Recommandations Personnalisées")
+
+    if not data_loaded:
+        st.stop()
+
+    tab1, tab2 = st.tabs(["Par ID Candidat", "Profil Libre"])
+
+    # --- Onglet 1 : par ID candidat ---
+    with tab1:
+        col_search, col_k = st.columns([3, 1])
+        with col_search:
+            candidate_id = st.selectbox(
+                "Sélectionner un candidat",
+                options=demandeurs["Matricule"].astype(str).tolist(),
+                index=0,
+            )
+        with col_k:
+            k = st.selectbox("Top-K", options=[5, 10], index=0)
+
+        if candidate_id:
+            candidate_row = demandeurs[demandeurs["Matricule"].astype(str) == candidate_id].iloc[0]
+            _show_candidate_and_recs(candidate_row, engine, offres, ground_truth, k, candidate_id)
+
+    # --- Onglet 2 : profil libre ---
+    with tab2:
+        st.markdown("#### Saisir un profil manuellement")
+        col1, col2 = st.columns(2)
+        with col1:
+            metier_vise  = st.text_input("Métier visé", placeholder="Ex: Data Analyst")
+            secteur      = st.text_input("Secteur demandé", placeholder="Ex: Technologie")
+            specialite   = st.text_input("Filière / Spécialité", placeholder="Ex: Informatique")
+        with col2:
+            diplome      = st.text_input("Diplôme", placeholder="Ex: Licence en Informatique")
+            niveau       = st.selectbox("Niveau d'étude", ["Bac", "Bac+2", "Bac+3", "Bac+5", "Doctorat"])
+            mobilite     = st.text_input("Mobilité géographique", placeholder="Ex: Brazzaville")
+        k_libre = st.selectbox("Top-K ", options=[5, 10], index=0)
+
+        if st.button("🔍 Trouver les meilleures offres", type="primary"):
+            from src.preprocessing import build_candidate_text, normalize_location, clean_text
+            row = pd.Series({
+                "Métier visé / Qualification visée": metier_vise,
+                "Secteur demandé": secteur,
+                "Filière / Spécialité": specialite,
+                "Diplome": diplome,
+                "niveau_etude": niveau,
+                "Qualification": "",
+                "Objectif": "Emploi",
+                "mobilite_norm": normalize_location(mobilite),
+                "Mobilité géographique": mobilite,
+            })
+            row["text_profile"] = build_candidate_text(row)
+            _show_recs_only(row, engine, offres, k_libre)
+
+
+
+
+# ===========================================================================
 # PAGE 3 — TABLEAU DE BORD
 # ===========================================================================
-elif page == "📊 Tableau de Bord":
+if page == "📊 Tableau de Bord":
     st.markdown("# 📊 Tableau de Bord Décisionnel")
 
     if not data_loaded:
@@ -484,7 +489,7 @@ elif page == "📊 Tableau de Bord":
 # ===========================================================================
 # PAGE 4 — RECHERCHE INTELLIGENTE
 # ===========================================================================
-elif page == "🔎 Recherche Intelligente":
+if page == "🔎 Recherche Intelligente":
     st.markdown("# 🔎 Recherche en Langage Naturel")
     st.markdown(
         "Recherchez des **offres** ou des **candidats** à partir d'une requête libre, "
@@ -548,7 +553,7 @@ elif page == "🔎 Recherche Intelligente":
 # ===========================================================================
 # PAGE 5 — SKILL GAP
 # ===========================================================================
-elif page == "📈 Analyse Skill Gap":
+if page == "📈 Analyse Skill Gap":
     st.markdown("# 📈 Analyse des Écarts de Compétences")
     st.markdown(
         "Identifiez les **compétences manquantes** chez un candidat par rapport aux exigences d'une offre."
